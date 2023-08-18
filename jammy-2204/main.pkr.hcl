@@ -48,20 +48,29 @@ source "proxmox-iso" "ubuntu-server-jammy-docker" {
   # (Optional) Skip TLS Verification
   insecure_skip_tls_verify = true
 
+  # PACKER Autoinstall Settings
+  http_directory = "http"
+  # (Optional) Bind IP Address and Port
+  http_bind_address = "192.168.1.40"
+  http_port_min     = 8802
+  http_port_max     = 8802
+
   # VM General Settings
   node                 = "pve-master"
   vm_id                = "9000"
   vm_name              = "ubuntu-server-jammy-docker"
-  template_description = "Ubuntu Server Jammy Image with Docker pre-installed"
+  template_description = "# Ubuntu Server \n## Jammy Image 22.04 with Docker pre-installed"
+  os                   = "l26"
+  bios                 = "seabios"
 
   # VM OS Settings
   # (Option 1) Local ISO File
-  # iso_file = "local:iso/ubuntu-22.04.3-live-server-amd64.iso"
+  iso_file = "local:iso/ubuntu-22.04.3-live-server-amd64.iso"
   # - or -
   # (Option 2) Download ISO
-  iso_download_pve = true
-  iso_url = "https://releases.ubuntu.com/jammy/ubuntu-22.04.3-live-server-amd64.iso"
-  iso_checksum = "a4acfda10b18da50e2ec50ccaf860d7f20b389df8765611142305c0e911d16fd"
+  # iso_download_pve = true
+  # iso_url = "https://releases.ubuntu.com/jammy/ubuntu-22.04.3-live-server-amd64.iso"
+  # iso_checksum = "a4acfda10b18da50e2ec50ccaf860d7f20b389df8765611142305c0e911d16fd"
 
   iso_storage_pool = "local"
   unmount_iso      = true
@@ -90,6 +99,7 @@ source "proxmox-iso" "ubuntu-server-jammy-docker" {
     model    = "virtio"
     bridge   = "vmbr0"
     firewall = "false"
+    vlan_tag = "10"
   }
 
   # VM Cloud-Init Settings
@@ -98,17 +108,10 @@ source "proxmox-iso" "ubuntu-server-jammy-docker" {
 
   # PACKER Boot Commands
   boot_command = ["c", "linux /casper/vmlinuz -- autoinstall ds='nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'", "<enter><wait><wait>", "initrd /casper/initrd", "<enter><wait><wait>", "boot<enter>"]
-  boot      = "c"
-  boot_wait = "6s"
+  boot         = "c"
+  boot_wait    = "6s"
 
-  # PACKER Autoinstall Settings
-  http_directory = "http"
-  # (Optional) Bind IP Address and Port
-  http_bind_address = "192.168.1.40"
-  http_port_min     = 8802
-  http_port_max     = 8802
-
-  ssh_username = "instance-user"
+  ssh_username         = "instance-user"
   ssh_private_key_file = "~/.ssh/id_ed25519"
 
   # Raise the timeout, when installation takes longer
