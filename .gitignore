@@ -1,1 +1,3 @@
 secret.pkrvars.hcl
+packer_cache
+*.iso

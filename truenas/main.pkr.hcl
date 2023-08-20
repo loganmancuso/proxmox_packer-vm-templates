@@ -39,7 +39,7 @@ variable "proxmox_api_token_secret" {
 # Resource Definiation
 # VM Template
 #######################################
-source "proxmox-iso" "ubuntu-server-jammy-docker" {
+source "proxmox-iso" "truenas-scale" {
 
   # Proxmox Connection Settings
   proxmox_url = "${var.proxmox_api_url}"
@@ -57,20 +57,20 @@ source "proxmox-iso" "ubuntu-server-jammy-docker" {
 
   # VM General Settings
   node                 = "pve-master"
-  vm_id                = "9000"
-  vm_name              = "ubuntu-server-jammy-docker"
-  template_description = "# Ubuntu Server \n## Jammy Image 22.04 with Docker pre-installed"
+  vm_id                = "9100"
+  vm_name              = "truenas-scale"
+  template_description = "# TrueNas Scale "
   os                   = "l26"
   bios                 = "seabios"
 
   # VM OS Settings
   # (Option 1) Local ISO File
-  iso_file = "local:iso/ubuntu-22.04.3-live-server-amd64.iso"
+  # iso_file = "local:iso/TrueNAS-SCALE-22.12.3.3.iso"
   # - or -
   # (Option 2) Download ISO
   # iso_download_pve = true
-  # iso_url = "https://releases.ubuntu.com/jammy/ubuntu-22.04.3-live-server-amd64.iso"
-  # iso_checksum = "a4acfda10b18da50e2ec50ccaf860d7f20b389df8765611142305c0e911d16fd"
+  iso_url = "https://download.sys.truenas.net/TrueNAS-SCALE-Bluefin/22.12.3.3/TrueNAS-SCALE-22.12.3.3.iso"
+  iso_checksum = "6c5742b936cb5f0daea41333e23147eaae884834a1307952a55b1623b8f2c6e2"
 
   iso_storage_pool = "local"
   unmount_iso      = true
@@ -124,8 +124,8 @@ source "proxmox-iso" "ubuntu-server-jammy-docker" {
 #######################################
 build {
 
-  name    = "ubuntu-server-jammy-docker"
-  sources = ["source.proxmox-iso.ubuntu-server-jammy-docker"]
+  name    = "truenas-scale"
+  sources = ["source.proxmox-iso.truenas-scale"]
 
   # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
   provisioner "shell" {
