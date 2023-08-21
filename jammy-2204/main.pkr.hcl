@@ -82,7 +82,7 @@ source "proxmox-iso" "ubuntu-server-jammy-docker" {
   scsi_controller = "virtio-scsi-pci"
 
   disks {
-    disk_size    = "20G"
+    disk_size    = "10G"
     format       = "raw"
     storage_pool = "local-lvm"
     type         = "virtio"
@@ -156,12 +156,28 @@ build {
   # Provisioning the VM Template with Docker Installation #4
   provisioner "shell" {
     inline = [
-      "sudo apt install python3 python3-pip -y",
+      "sudo apt install python3-full python3-pip python3-docker python3-jsondiff -y",
       "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
       "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
       "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
       "sudo apt-get -y update",
       "sudo apt-get install -y docker-ce docker-ce-cli containerd.io"
+    ]
+  }
+
+  # Install Custom Tools, Prompt, and Scripts
+  provisioner "shell" {
+    inline = [
+      "sudo apt install git curl unzip wget fontconfig -y",
+      "mkdir -p ~/.local/share/fonts",
+      "wget -O ~/.local/share/fonts/CascadiaCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip",
+      "unzip ~/.local/share/fonts/CascadiaCode.zip -d ~/.local/share/fonts",
+      "fc-cache -fv",
+      "mkdir -p ~/.config",
+      "git clone https://gitlab.com/snippets/2295216.git ~/.config/bash",
+      "git clone https://gitlab.com/snippets/2351345.git ~/.config/oh-my-posh",
+      "curl -s https://ohmyposh.dev/install.sh | sudo bash -s",
+      "echo -e \"if [ -d ~/.config/bash ]; then\n   . ~/.config/bash/bash_aliases\nfi\" >> ~/.bashrc"
     ]
   }
 }
