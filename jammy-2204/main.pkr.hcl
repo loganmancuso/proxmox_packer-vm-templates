@@ -177,7 +177,7 @@ build {
       "git clone https://gitlab.com/snippets/2295216.git ~/.config/bash",
       "git clone https://gitlab.com/snippets/2351345.git ~/.config/oh-my-posh",
       "curl -s https://ohmyposh.dev/install.sh | sudo bash -s",
-      "echo -e \"if [ -d ~/.config/bash ]; then\n   . ~/.config/bash/bash_aliases\nfi\" >> ~/.bashrc"
+      "echo \"if [ -d ~/.config/bash ]; then\n   . ~/.config/bash/bash_aliases\nfi\" >> ~/.bashrc"
     ]
   }
 }
