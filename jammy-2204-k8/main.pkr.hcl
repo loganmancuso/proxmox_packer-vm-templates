@@ -3,7 +3,7 @@
 # Author: Logan Mancuso
 # Created: 07.30.2023
 #
-# Packer Template to create an Ubuntu Server (22.04) with Docker on Proxmox
+# Packer Template to create an Ubuntu Server (22.04) with k8 on Proxmox
 ##############################################################################
 
 #######################################
@@ -39,7 +39,7 @@ variable "proxmox_api_token_secret" {
 # Resource Definiation
 # VM Template
 #######################################
-source "proxmox-iso" "ubuntu-server-jammy-docker" {
+source "proxmox-iso" "ubuntu-server-jammy-k8" {
 
   # Proxmox Connection Settings
   proxmox_url = "${var.proxmox_api_url}"
@@ -57,9 +57,9 @@ source "proxmox-iso" "ubuntu-server-jammy-docker" {
 
   # VM General Settings
   node                 = "pve-master"
-  vm_id                = "00200"
-  vm_name              = "ubuntu-server-jammy-docker"
-  template_description = "# Ubuntu Server \n## Jammy Image 22.04 with Docker pre-installed"
+  vm_id                = "00210"
+  vm_name              = "ubuntu-server-jammy-k8"
+  template_description = "# Ubuntu Server \n## Jammy Image 22.04 with k8 pre-installed"
   os                   = "l26"
   bios                 = "seabios"
 
@@ -124,8 +124,8 @@ source "proxmox-iso" "ubuntu-server-jammy-docker" {
 #######################################
 build {
 
-  name    = "ubuntu-server-jammy-docker"
-  sources = ["source.proxmox-iso.ubuntu-server-jammy-docker"]
+  name    = "ubuntu-server-jammy-k8"
+  sources = ["source.proxmox-iso.ubuntu-server-jammy-k8"]
 
   # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
   provisioner "shell" {
@@ -153,15 +153,13 @@ build {
     inline = ["sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg"]
   }
 
-  # Provisioning the VM Template with Docker Installation #4
+  # Provisioning the VM Template with k8 Installation #4
   provisioner "shell" {
     inline = [
-      "sudo apt install python3-full python3-pip python3-docker python3-jsondiff -y",
-      "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
-      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
-      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
-      "sudo apt-get -y update",
-      "sudo apt-get install -y docker-ce docker-ce-cli containerd.io"
+      "sudo apt install snapd python3-full python3-pip -y",
+      # "sudo snap install microk8s --classic",
+      # "sudo usermod -a -G microk8s $USER",
+      # "sudo chown -f -R $USER ~/.kube"
     ]
   }
 
