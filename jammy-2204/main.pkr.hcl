@@ -22,6 +22,9 @@ packer {
 #######################################
 # Variable Definitions
 #######################################
+variable "environment" {
+  type = string
+}
 variable "proxmox_api_url" {
   type = string
 }
@@ -33,6 +36,10 @@ variable "proxmox_api_token_id" {
 variable "proxmox_api_token_secret" {
   type      = string
   sensitive = true
+}
+
+locals {
+  node = var.environment == "sandbox" ? "pve-sandbox" : var.environment == "prod" ? "pve-manager" : "None"
 }
 
 #######################################
@@ -56,7 +63,7 @@ source "proxmox-iso" "ubuntu-server-jammy-docker" {
   http_port_max     = 8802
 
   # VM General Settings
-  node                 = "pve-master"
+  node                 = local.node
   vm_id                = "00200"
   vm_name              = "ubuntu-server-jammy-docker"
   template_description = "# Ubuntu Server \n## Jammy Image 22.04 with Docker pre-installed"
