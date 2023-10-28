@@ -166,8 +166,9 @@ build {
     inline = [
       "sudo apt install snapd python3-full python3-pip -y",
       "sudo snap install microk8s --classic",
-      "sudo usermod -a -G microk8s $USER",
-      "sudo chown -f -R $USER ~/.kube"
+      "sudo microk8s status --wait-ready",
+      "sudo microk8s start",
+      "sudo usermod -a -G microk8s $USER"
     ]
   }
 
