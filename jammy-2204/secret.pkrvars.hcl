@@ -1,0 +1,1 @@
+C:/Users/Micke/source/Infrastructure/Proxmox/packer-vm-template/env/prod/secret.pkrvars.hcl
