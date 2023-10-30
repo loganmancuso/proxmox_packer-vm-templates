@@ -40,7 +40,7 @@ variable "proxmox_api_token_secret" {
 }
 
 locals {
-  node = var.environment == "sandbox" ? "pve-sandbox" : var.environment == "prod" ? "pve-manager" : "None"
+  node = "pve-manager"
 }
 
 #######################################
@@ -65,7 +65,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
 
   # VM General Settings
   node                 = local.node
-  vm_id                = "00100"
+  vm_id                = 00100
   vm_name              = "ubuntu-server-jammy-k8"
   template_description = "# Ubuntu Server \n## Jammy Image 22.04 with k8 pre-installed"
   os                   = "l26"
@@ -135,7 +135,7 @@ build {
   name    = "ubuntu-server-jammy-k8"
   sources = ["source.proxmox-iso.ubuntu-server-jammy-k8"]
 
-  # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
+  #Cloud-Init Integration in Proxmox #
   provisioner "shell" {
     inline = [
       "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done",
@@ -149,33 +149,42 @@ build {
       "sudo sync"
     ]
   }
-
-  # Provisioning the VM Template for Cloud-Init Integration in Proxmox #2
   provisioner "file" {
     source      = "files/99-pve.cfg"
     destination = "/tmp/99-pve.cfg"
   }
-
-  # Provisioning the VM Template for Cloud-Init Integration in Proxmox #3
   provisioner "shell" {
     inline = ["sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg"]
   }
 
-  # Provisioning the VM Template with k8 Installation #4
+  # Docker Installation #
   provisioner "shell" {
     inline = [
-      "sudo apt install snapd python3-full python3-pip -y",
-      "sudo snap install microk8s --classic",
-      "sudo microk8s status --wait-ready",
-      "sudo microk8s start",
-      "sudo usermod -a -G microk8s $USER"
+      "sudo apt install -y python3-full python3-pip python3-docker python3-jsondiff",
+      "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
+      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
+      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list",
+      "sudo apt-get -y update",
+      "sudo apt-get install -y docker-ce docker-ce-cli containerd.io"
     ]
   }
 
-  # Install Custom Tools, Prompt, and Scripts
+  # K8 Installation
   provisioner "shell" {
     inline = [
-      "sudo apt install git curl unzip wget fontconfig -y",
+      "sudo apt-get install -y apt-transport-https ca-certificates curl bash-completion",
+      "sudo curl -fsSL https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg",
+      "sudo echo \"deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /\" | sudo tee /etc/apt/sources.list.d/kubernetes.list",
+      "sudo apt-get update -y",
+      "sudo apt-get install -y kubectl",
+      "echo \"source <(kubectl completion bash)\" >> ~/.bashrc"
+    ]
+  }
+
+  # Install Custom Tools, Prompt, and Scripts #
+  provisioner "shell" {
+    inline = [
+      "sudo apt install -y git curl unzip wget fontconfig",
       "mkdir -p ~/.local/share/fonts",
       "wget -O ~/.local/share/fonts/CascadiaCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip",
       "unzip ~/.local/share/fonts/CascadiaCode.zip -d ~/.local/share/fonts",
@@ -184,7 +193,7 @@ build {
       "git clone https://gitlab.com/snippets/2295216.git ~/.config/bash",
       "git clone https://gitlab.com/snippets/2351345.git ~/.config/oh-my-posh",
       "curl -s https://ohmyposh.dev/install.sh | sudo bash -s",
-      "echo \"if [ -d ~/.config/bash ]; then\n   . ~/.config/bash/bash_aliases\nfi\" >> ~/.bashrc"
+      "echo \"source ~/.config/bash/bash_aliases\" >> ~/.bashrc"
     ]
   }
 }
