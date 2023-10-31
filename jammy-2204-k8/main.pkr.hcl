@@ -13,7 +13,7 @@ packer {
   required_version = ">= 1.9.2"
   required_plugins {
     proxmox = {
-      version = ">= 1.1.3"
+      version = ">= 1.1.5"
       source  = "github.com/hashicorp/proxmox"
     }
   }
@@ -22,25 +22,20 @@ packer {
 #######################################
 # Variable Definitions
 #######################################
-variable "environment" {
+variable "node_name" {
   type = string
 }
 
-variable "proxmox_api_url" {
+variable "node_ip" {
   type = string
 }
 
-variable "proxmox_api_token_id" {
+variable "instance_username" {
   type = string
 }
 
-variable "proxmox_api_token_secret" {
-  type      = string
-  sensitive = true
-}
-
-locals {
-  node = "pve-manager"
+variable "proxmox_user" {
+  type = string
 }
 
 #######################################
@@ -50,21 +45,20 @@ locals {
 source "proxmox-iso" "ubuntu-server-jammy-k8" {
 
   # Proxmox Connection Settings
-  proxmox_url = "${var.proxmox_api_url}"
-  username    = "${var.proxmox_api_token_id}"
-  token       = "${var.proxmox_api_token_secret}"
+  proxmox_url = "https://${var.node_ip}:8006/api2/json"
+  username    = var.proxmox_user
   # (Optional) Skip TLS Verification
   insecure_skip_tls_verify = true
 
   # PACKER Autoinstall Settings
-  http_directory = "http"
+  http_directory = "jammy-2204-k8/http"
   # (Optional) Bind IP Address and Port
   http_bind_address = "192.168.1.40"
   http_port_min     = 8802
   http_port_max     = 8802
 
   # VM General Settings
-  node                 = local.node
+  node                 = var.node_name
   vm_id                = 00100
   vm_name              = "ubuntu-server-jammy-k8"
   template_description = "# Ubuntu Server \n## Jammy Image 22.04 with k8 pre-installed"
@@ -77,8 +71,8 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
   # - or -
   # (Option 2) Download ISO
   # iso_download_pve = true
-  # iso_url = "https://releases.ubuntu.com/jammy/ubuntu-22.04.3-live-server-amd64.iso"
-  # iso_checksum = "a4acfda10b18da50e2ec50ccaf860d7f20b389df8765611142305c0e911d16fd"
+  # iso_url          = "https://releases.ubuntu.com/jammy/ubuntu-22.04.3-live-server-amd64.iso"
+  # iso_checksum     = "a4acfda10b18da50e2ec50ccaf860d7f20b389df8765611142305c0e911d16fd"
 
   iso_storage_pool = "local"
   unmount_iso      = true
@@ -119,7 +113,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
   boot         = "c"
   boot_wait    = "6s"
 
-  ssh_username         = "instance-user"
+  ssh_username         = var.instance_username
   ssh_private_key_file = "~/.ssh/id_ed25519"
 
   # Raise the timeout, when installation takes longer
@@ -150,7 +144,7 @@ build {
     ]
   }
   provisioner "file" {
-    source      = "files/99-pve.cfg"
+    source      = "jammy-2204-k8/files/99-pve.cfg"
     destination = "/tmp/99-pve.cfg"
   }
   provisioner "shell" {
