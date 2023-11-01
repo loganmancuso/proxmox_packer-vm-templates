@@ -42,7 +42,7 @@ variable "vm_id" {
 # Resource Definiation
 # VM Template
 #######################################
-source "proxmox-iso" "ubuntu-server-jammy-k8" {
+source "proxmox-iso" "ubuntu-server-jammy" {
 
   # Proxmox Connection Settings
   proxmox_url = "https://${var.node_ip}:8006/api2/json"
@@ -51,7 +51,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
   insecure_skip_tls_verify = true
 
   # PACKER Autoinstall Settings
-  http_directory = "jammy-2204-k8/http"
+  http_directory = "jammy-2204/http"
   # (Optional) Bind IP Address and Port
   http_bind_address = "192.168.1.40"
   http_port_min     = 8802
@@ -60,7 +60,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
   # VM General Settings
   node                 = var.node_name
   vm_id                = var.vm_id
-  vm_name              = "ubuntu-server-jammy-k8"
+  vm_name              = "ubuntu-server-jammy"
   template_description = "# Ubuntu Server \n## Jammy Image 22.04 with k8 pre-installed"
   os                   = "l26"
   bios                 = "seabios"
@@ -126,8 +126,8 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
 #######################################
 build {
 
-  name    = "ubuntu-server-jammy-k8"
-  sources = ["source.proxmox-iso.ubuntu-server-jammy-k8"]
+  name    = "ubuntu-server-jammy"
+  sources = ["source.proxmox-iso.ubuntu-server-jammy"]
 
   #Cloud-Init Integration in Proxmox #
   provisioner "shell" {
@@ -144,35 +144,11 @@ build {
     ]
   }
   provisioner "file" {
-    source      = "jammy-2204-k8/files/99-pve.cfg"
+    source      = "jammy-2204/files/99-pve.cfg"
     destination = "/tmp/99-pve.cfg"
   }
   provisioner "shell" {
     inline = ["sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg"]
-  }
-
-  # Docker Installation #
-  provisioner "shell" {
-    inline = [
-      "sudo apt install -y python3-full python3-pip python3-docker python3-jsondiff",
-      "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
-      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
-      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list",
-      "sudo apt-get -y update",
-      "sudo apt-get install -y docker-ce docker-ce-cli containerd.io"
-    ]
-  }
-
-  # K8 Installation
-  provisioner "shell" {
-    inline = [
-      "sudo apt-get install -y apt-transport-https ca-certificates curl bash-completion",
-      "sudo curl -fsSL https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg",
-      "sudo echo \"deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /\" | sudo tee /etc/apt/sources.list.d/kubernetes.list",
-      "sudo apt-get update -y",
-      "sudo apt-get install -y kubectl",
-      "echo \"source <(kubectl completion bash)\" >> ~/.bashrc"
-    ]
   }
 
   # Install Custom Tools, Prompt, and Scripts #
