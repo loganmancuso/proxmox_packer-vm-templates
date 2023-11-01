@@ -3,7 +3,7 @@
 # Author: Logan Mancuso
 # Created: 07.30.2023
 #
-# Packer Template to create an Ubuntu Server (22.04) with k8 on Proxmox
+# Packer Template to create an Ubuntu Server (22.04) on Proxmox
 ##############################################################################
 
 #######################################
@@ -61,7 +61,7 @@ source "proxmox-iso" "ubuntu-server-jammy" {
   node                 = var.node_name
   vm_id                = var.vm_id
   vm_name              = "ubuntu-server-jammy"
-  template_description = "# Ubuntu Server \n## Jammy Image 22.04 with k8 pre-installed"
+  template_description = "# Ubuntu Server Template\n## Jammy Image 22.04"
   os                   = "l26"
   bios                 = "seabios"
 
@@ -113,7 +113,7 @@ source "proxmox-iso" "ubuntu-server-jammy" {
   boot         = "c"
   boot_wait    = "6s"
 
-  ssh_username         = "ubuntu"
+  ssh_username         = "instance-user"
   ssh_private_key_file = "~/.ssh/id_ed25519"
 
   # Raise the timeout, when installation takes longer

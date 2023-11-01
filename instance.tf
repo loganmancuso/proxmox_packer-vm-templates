@@ -23,9 +23,10 @@ locals {
 
 # run packer validate
 resource "null_resource" "packer_validate" {
+  depends_on = [ local_file.user_data ]
   triggers = {
     packer_file     = "${md5(file("${path.module}/templates/${var.packer_vm}/main.pkr.hcl"))}"
-    packer_userdata = "${md5(file("${path.module}/templates/${var.packer_vm}/http/user-data"))}"
+    packer_userdata = local_file.user_data.content_md5
   }
   provisioner "local-exec" {
     working_dir = path.module
@@ -35,7 +36,7 @@ resource "null_resource" "packer_validate" {
 
 # # run packer build
 # resource "null_resource" "packer_build" {
-#   depends_on = [ null_resource.packer_validate ]
+#   depends_on = [ null_resource.packer_validate, local_file.user_data ]
 #   triggers = {
 #     packer_file = "${sha1(file("${path.module}/${var.packer_vm}/main.pkr.hcl"))}"
 #   }

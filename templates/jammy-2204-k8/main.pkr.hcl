@@ -61,7 +61,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
   node                 = var.node_name
   vm_id                = var.vm_id
   vm_name              = "ubuntu-server-jammy-k8"
-  template_description = "# Ubuntu Server \n## Jammy Image 22.04 with k8 pre-installed"
+  template_description = "# Ubuntu Server Template\n## Jammy Image 22.04 with k8 pre-installed"
   os                   = "l26"
   bios                 = "seabios"
 
@@ -113,7 +113,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
   boot         = "c"
   boot_wait    = "6s"
 
-  ssh_username         = "ubuntu"
+  ssh_username         = "instance-user"
   ssh_private_key_file = "~/.ssh/id_ed25519"
 
   # Raise the timeout, when installation takes longer
