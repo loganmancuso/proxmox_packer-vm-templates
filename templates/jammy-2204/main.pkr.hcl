@@ -51,7 +51,7 @@ source "proxmox-iso" "ubuntu-server-jammy" {
   insecure_skip_tls_verify = true
 
   # PACKER Autoinstall Settings
-  http_directory = "jammy-2204/http"
+  http_directory = "templates/jammy-2204/http"
   # (Optional) Bind IP Address and Port
   http_bind_address = "192.168.1.40"
   http_port_min     = 8802
@@ -144,7 +144,7 @@ build {
     ]
   }
   provisioner "file" {
-    source      = "jammy-2204/files/99-pve.cfg"
+    source      = "templates/jammy-2204/files/99-pve.cfg"
     destination = "/tmp/99-pve.cfg"
   }
   provisioner "shell" {
