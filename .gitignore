@@ -1,10 +1,13 @@
-packer_cache
+# Packer
+packer_cache/
 *.iso
-
+# Tofu/Terraform
 .terraform
 *.tfstate.*
 .terraform.lock.hcl
-env/
+# Symlinks
 /main.tf
 /*.tfvars
 /hosts
+# Transformed user-data
+/templates/*/http/user-data

@@ -6,12 +6,17 @@
 ##############################################################################
 
 variable "packer_vm" {
-  description = "vm to build"
+  description = "build template to target (under templates directory)"
   type        = string
 }
 
-variable "instance_username" {
-  description = "username for instance"
+variable "instance_ssh_pubkey" {
+  description = "instance public ssh key"
   type        = string
-  default     = "instance-user"
+  default     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINQj0vO0eNNKtED9at+T1h2Xj3K4sMHlyPoHx+ON+WLS mickeyacejr@live.com"
+}
+
+variable "vm_template_id" {
+  description = "vm template id: folliwing schema in datacenter-infrastructure workflow"
+  type        = number
 }

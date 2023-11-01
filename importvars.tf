@@ -14,7 +14,7 @@ data "terraform_remote_state" "datacenter_infrastructure" {
 }
 
 locals {
-  node_name                = data.terraform_remote_state.datacenter_infrastructure.outputs.node_name
-  node_ip                  = data.terraform_remote_state.datacenter_infrastructure.outputs.node_ip
-  operations_user          = data.terraform_remote_state.datacenter_infrastructure.outputs.operations_user
+  node_name       = data.terraform_remote_state.datacenter_infrastructure.outputs.node_name
+  node_ip         = data.terraform_remote_state.datacenter_infrastructure.outputs.node_ip
+  operations_user = data.terraform_remote_state.datacenter_infrastructure.outputs.operations_user
 }

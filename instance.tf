@@ -5,33 +5,31 @@
 #
 ##############################################################################
 
-resource "random_password" "password" {
-  length = 15
+# Save updated user-data file
+resource "local_file" "user_data" {
+  filename = "${path.module}/templates/${var.packer_vm}/http/user-data"
+  content = templatefile("${path.module}/env/${var.packer_vm}/user-data.tmpl",
+    {
+      instance_ssh_pubkey = var.instance_ssh_pubkey
+  })
 }
 
-output "instance_password_hash" {
-  value = nonsensitive("${bcrypt(random_password.password.result,6)}")
+locals {
+  packer_variables = "-var 'vm_id=${var.vm_template_id}' -var 'node_name=${local.node_name}' -var 'node_ip=${local.node_ip}' -var 'proxmox_user=${local.operations_user}!terraform' ./templates/${var.packer_vm}/main.pkr.hcl"
+  packer_validate  = "packer validate ${local.packer_variables}"
+  packer_build     = "packer build ${local.packer_variables}"
 }
 
-output "packer_validate" {
-  value = "packer validate -var 'instance_username=${var.instance_username}' -var 'node_name=${local.node_name}' -var 'node_ip=${local.node_ip}' -var 'proxmox_user=${local.operations_user}!terraform' ./${var.packer_vm}/main.pkr.hcl"
+# run packer validate
+resource "null_resource" "packer_validate" {
+  triggers = {
+    packer_file = "${md5(file("${path.module}/templates/${var.packer_vm}/main.pkr.hcl"))}"
+  }
+  provisioner "local-exec" {
+    working_dir = path.module
+    command     = local.packer_validate
+  }
 }
-
-output "packer_build" {
-  value = "packer build -var 'instance_username=${var.instance_username}' -var 'node_name=${local.node_name}' -var 'node_ip=${local.node_ip}' -var 'proxmox_user=${local.operations_user}!terraform' ./${var.packer_vm}/main.pkr.hcl"
-}
-
-# # run packer validate
-# resource "null_resource" "packer_validate" {
-#   triggers = {
-#     packer_file = "${sha1(file("${path.module}/${var.packer_vm}/main.pkr.hcl"))}"
-#   }
-
-#   provisioner "local-exec" {
-#     working_dir = path.module
-#     command     = "packer validate -var 'instance_username=${var.instance_username}' -var 'node_name=${local.node_name}' -var 'node_ip=${local.node_ip}' -var 'proxmox_user=${local.operations_user}!terraform' ./${var.packer_vm}/main.pkr.hcl"
-#   }
-# }
 
 # # run packer build
 # resource "null_resource" "packer_build" {
@@ -39,9 +37,12 @@ output "packer_build" {
 #   triggers = {
 #     packer_file = "${sha1(file("${path.module}/${var.packer_vm}/main.pkr.hcl"))}"
 #   }
-
 #   provisioner "local-exec" {
 #     working_dir = path.module
-#     command     = "packer build -var 'instance_username=${var.instance_username}' -var 'node_name=${local.node_name}' -var 'node_ip=${local.node_ip}' -var 'proxmox_user=${local.operations_user}!terraform' ./${var.packer_vm}/main.pkr.hcl"
+#     command = local.packer_build
 #   }
 # }
+
+output "packer_build" {
+  value = local.packer_build
+}

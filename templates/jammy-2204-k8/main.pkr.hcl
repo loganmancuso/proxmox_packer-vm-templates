@@ -10,7 +10,7 @@
 # Provider
 #######################################
 packer {
-  required_version = ">= 1.9.2"
+  required_version = ">= 1.9.4"
   required_plugins {
     proxmox = {
       version = ">= 1.1.5"
@@ -30,12 +30,12 @@ variable "node_ip" {
   type = string
 }
 
-variable "instance_username" {
+variable "proxmox_user" {
   type = string
 }
 
-variable "proxmox_user" {
-  type = string
+variable "vm_id" {
+  type = number
 }
 
 #######################################
@@ -51,7 +51,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
   insecure_skip_tls_verify = true
 
   # PACKER Autoinstall Settings
-  http_directory = "jammy-2204-k8/http"
+  http_directory = "templates/jammy-2204-k8/http"
   # (Optional) Bind IP Address and Port
   http_bind_address = "192.168.1.40"
   http_port_min     = 8802
@@ -59,7 +59,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
 
   # VM General Settings
   node                 = var.node_name
-  vm_id                = 00100
+  vm_id                = var.vm_id
   vm_name              = "ubuntu-server-jammy-k8"
   template_description = "# Ubuntu Server \n## Jammy Image 22.04 with k8 pre-installed"
   os                   = "l26"
@@ -113,7 +113,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k8" {
   boot         = "c"
   boot_wait    = "6s"
 
-  ssh_username         = var.instance_username
+  ssh_username         = "ubuntu"
   ssh_private_key_file = "~/.ssh/id_ed25519"
 
   # Raise the timeout, when installation takes longer
@@ -144,7 +144,7 @@ build {
     ]
   }
   provisioner "file" {
-    source      = "jammy-2204-k8/files/99-pve.cfg"
+    source      = "templates/jammy-2204-k8/files/99-pve.cfg"
     destination = "/tmp/99-pve.cfg"
   }
   provisioner "shell" {

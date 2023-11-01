@@ -5,11 +5,5 @@
 #
 ##############################################################################
 
-output "instance_ssh_pubkey" {
-  description = "instance public ssh key"
-  value       = var.instance_ssh_pubkey
-}
-
-output "vm_template_id" {
-  value = var.vm_template_id
-}
+packer_vm           = "jammy-2204-k8"
+vm_template_id      = 00101
