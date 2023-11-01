@@ -11,6 +11,7 @@ resource "local_file" "user_data" {
   content = templatefile("${path.module}/env/${var.packer_vm}/user-data.tmpl",
     {
       instance_ssh_pubkey = var.instance_ssh_pubkey
+      instance_password   = var.hashed_password
   })
 }
 
@@ -23,7 +24,8 @@ locals {
 # run packer validate
 resource "null_resource" "packer_validate" {
   triggers = {
-    packer_file = "${md5(file("${path.module}/templates/${var.packer_vm}/main.pkr.hcl"))}"
+    packer_file     = "${md5(file("${path.module}/templates/${var.packer_vm}/main.pkr.hcl"))}"
+    packer_userdata = "${md5(file("${path.module}/templates/${var.packer_vm}/http/user-data"))}"
   }
   provisioner "local-exec" {
     working_dir = path.module

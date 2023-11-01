@@ -20,3 +20,9 @@ variable "vm_template_id" {
   description = "vm template id: folliwing schema in datacenter-infrastructure workflow"
   type        = number
 }
+
+variable "hashed_password" {
+  description = "hashed password using `openssl passwd -6`"
+  sensitive = true
+  type      = string
+}

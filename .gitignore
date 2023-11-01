@@ -11,3 +11,5 @@ packer_cache/
 /hosts
 # Transformed user-data
 /templates/*/http/user-data
+# Sensitive tfvars 
+/env/*/terraform.tfvars

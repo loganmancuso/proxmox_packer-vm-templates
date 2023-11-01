@@ -9,8 +9,8 @@ autoinstall:
       name: lvm
   identity:
     hostname: ubuntu
-    username: ubuntu
-    password: ubuntu
+    username: instance-user
+    password: ${instance_password}
   ssh:
     install-server: true
     allow-pw: false
@@ -24,4 +24,4 @@ autoinstall:
     timezone: America/New_York
   late-commands:
     - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
-    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
+    - echo 'instance-user ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/instance-user
