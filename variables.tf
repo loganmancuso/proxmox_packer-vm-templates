@@ -23,6 +23,6 @@ variable "vm_template_id" {
 
 variable "hashed_password" {
   description = "hashed password using `openssl passwd -6`"
-  sensitive = true
-  type      = string
+  sensitive   = true
+  type        = string
 }

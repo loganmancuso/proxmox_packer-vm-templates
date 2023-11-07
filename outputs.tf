@@ -11,7 +11,7 @@ output "instance_username" {
 
 output "instance_password_hashed" {
   sensitive = true
-  value = var.hashed_password
+  value     = var.hashed_password
 }
 
 output "instance_ssh_pubkey" {

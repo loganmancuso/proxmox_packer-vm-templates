@@ -5,6 +5,8 @@ packer_cache/
 .terraform
 *.tfstate.*
 .terraform.lock.hcl
+# Packer
+packer_cache/
 # Symlinks
 /main.tf
 /*.tfvars
