@@ -26,3 +26,8 @@ variable "hashed_password" {
   sensitive   = true
   type        = string
 }
+
+variable "default_tags" {
+  description = "default set of tags for instance"
+  type        = list(string)
+}

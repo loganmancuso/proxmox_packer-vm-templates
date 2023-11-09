@@ -37,7 +37,7 @@ resource "null_resource" "packer_init" {
 
 # run packer validate
 resource "null_resource" "packer_validate" {
-  depends_on = [local_file.user_data]
+  depends_on = [null_resource.packer_init, local_file.user_data]
   triggers = {
     packer_file     = "${md5(file("${path.module}/templates/${var.packer_vm}/main.pkr.hcl"))}"
     packer_userdata = local_file.user_data.content_md5
@@ -49,6 +49,7 @@ resource "null_resource" "packer_validate" {
 }
 
 # run packer build
+# error in the build `failed to listen on multipathd control socket`
 resource "null_resource" "packer_build" {
   depends_on = [null_resource.packer_validate, local_file.user_data]
   triggers = {
