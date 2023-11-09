@@ -61,7 +61,7 @@ source "proxmox-iso" "ubuntu-server-jammy" {
   node                 = var.node_name
   vm_id                = var.vm_id
   vm_name              = "ubuntu-server-jammy"
-  template_description = "# Ubuntu Server Template\n## Jammy Image 22.04"
+  template_description = "# Ubuntu Server Template\n## Jammy Image 22.04 with docker pre-installed"
   os                   = "l26"
   bios                 = "seabios"
 
@@ -151,10 +151,28 @@ build {
     inline = ["sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg"]
   }
 
+  # Default Packages #
+  provisioner "shell" {
+    inline = [
+      "sudo apt install -y python3-full python3-pip python3-jsondiff"
+    ]
+  }
+  # Docker Installation #
+  provisioner "shell" {
+    inline = [
+      "sudo apt install -y python3-docker",
+      "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
+      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
+      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list",
+      "sudo apt-get -y update",
+      "sudo apt-get install -y docker-ce docker-ce-cli containerd.io"
+    ]
+  }
+
   # Install Custom Tools, Prompt, and Scripts #
   provisioner "shell" {
     inline = [
-      "sudo apt install -y git curl unzip wget fontconfig",
+      "sudo apt install -y git unzip wget fontconfig",
       "mkdir -p ~/.local/share/fonts",
       "wget -O ~/.local/share/fonts/CascadiaCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip",
       "unzip ~/.local/share/fonts/CascadiaCode.zip -d ~/.local/share/fonts",
@@ -162,7 +180,7 @@ build {
       "mkdir -p ~/.config",
       "git clone https://gitlab.com/snippets/2295216.git ~/.config/bash",
       "git clone https://gitlab.com/snippets/2351345.git ~/.config/oh-my-posh",
-      "curl -s https://ohmyposh.dev/install.sh | sudo bash -s",
+      "wget -qO- https://ohmyposh.dev/install.sh | sudo bash -s",
       "echo \"source ~/.config/bash/bash_aliases\" >> ~/.bashrc"
     ]
   }

@@ -22,3 +22,8 @@ output "instance_ssh_pubkey" {
 output "vm_template_id" {
   value = var.vm_template_id
 }
+
+output "default_tags" {
+  description = "set of default tags for the instance"
+  value       = var.default_tags
+}
