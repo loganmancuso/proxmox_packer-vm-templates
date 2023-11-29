@@ -18,7 +18,7 @@ terraform {
     }
   }
   backend "http" {
-    address  = "https://gitlab.com/api/v4/projects/48496137/terraform/state/jammy-2204-k3"
+    address  = "https://gitlab.com/api/v4/projects/48496137/terraform/state/jammy-2204-k3s"
     username = "loganmancuso"
   }
 }

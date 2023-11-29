@@ -38,6 +38,10 @@ variable "vm_id" {
   type = number
 }
 
+variable "instance_username" {
+  type = string
+}
+
 #######################################
 # Resource Definiation
 # VM Template
@@ -52,8 +56,6 @@ source "proxmox-iso" "ubuntu-server-jammy" {
 
   # PACKER Autoinstall Settings
   http_directory = "templates/jammy-2204/http"
-  # (Optional) Bind IP Address and Port
-  http_bind_address = "192.168.1.40"
   http_port_min     = 8802
   http_port_max     = 8802
 
@@ -113,7 +115,7 @@ source "proxmox-iso" "ubuntu-server-jammy" {
   boot         = "c"
   boot_wait    = "6s"
 
-  ssh_username         = "instance-user"
+  ssh_username         = var.instance_username
   ssh_private_key_file = "~/.ssh/id_ed25519"
 
   # Raise the timeout, when installation takes longer
@@ -151,27 +153,14 @@ build {
     inline = ["sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg"]
   }
 
-  # Default Packages #
+  # Install Custom Tools, Folders, Packages, Prompt, and Scripts #
   provisioner "shell" {
     inline = [
-      "sudo apt install -y python3-full python3-pip python3-jsondiff"
-    ]
-  }
-  # Docker Installation #
-  provisioner "shell" {
-    inline = [
-      "sudo apt install -y python3-docker",
-      "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
-      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
-      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list",
-      "sudo apt-get -y update",
-      "sudo apt-get install -y docker-ce docker-ce-cli containerd.io"
-    ]
-  }
-
-  # Install Custom Tools, Prompt, and Scripts #
-  provisioner "shell" {
-    inline = [
+      "sudo apt install -y python3-full python3-pip python3-jsondiff",
+      "sudo mkdir -p /var/log/tofu/",
+      "sudo chown -R root:${var.instance_username} /var/log/tofu/",
+      "sudo mkdir -p /opt/tofu/",
+      "sudo chown -R root:${var.instance_username} /opt/tofu/",
       "sudo apt install -y git unzip wget fontconfig",
       "mkdir -p ~/.local/share/fonts",
       "wget -O ~/.local/share/fonts/CascadiaCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip",
@@ -182,6 +171,21 @@ build {
       "git clone https://gitlab.com/snippets/2351345.git ~/.config/oh-my-posh",
       "wget -qO- https://ohmyposh.dev/install.sh | sudo bash -s",
       "echo \"source ~/.config/bash/bash_aliases\" >> ~/.bashrc"
+    ]
+  }
+
+  # Docker Installation #
+  provisioner "shell" {
+    inline = [
+      "sudo apt install -y python3-docker",
+      "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
+      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
+      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list",
+      "sudo apt-get -y update",
+      "sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose",
+      "sudo usermod -aG docker ${var.instance_username} ",
+      "newgrp docker",
+      "curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash"
     ]
   }
 }

@@ -1,7 +1,7 @@
 ##############################################################################
 #
 # Author: Logan Mancuso
-# Created: 07.30.2023
+# Created: 11.28.2023
 #
 ##############################################################################
 
@@ -10,13 +10,15 @@ resource "local_file" "user_data" {
   filename = "${path.module}/templates/${var.packer_vm}/http/user-data"
   content = templatefile("${path.module}/env/${var.packer_vm}/user-data.tmpl",
     {
-      instance_ssh_pubkey = var.instance_ssh_pubkey
-      instance_password   = var.hashed_password
+      instance_username        = local.secret_instance_credentials.username
+      instance_ssh_pubkey      = local.secret_instance_credentials.pub_key
+      instance_hashed_password = local.secret_instance_credentials.hashed_password
+      instance_password        = local.secret_instance_credentials.password
   })
 }
 
 locals {
-  packer_variables = "-var 'vm_id=${var.vm_template_id}' -var 'node_name=${local.node_name}' -var 'node_ip=${local.node_ip}' -var 'proxmox_user=${local.operations_user}!terraform' ./templates/${var.packer_vm}/main.pkr.hcl"
+  packer_variables = "-var 'instance_username=${local.secret_instance_credentials.username}' -var 'vm_id=${var.vm_template_id}' -var 'node_name=${local.node_name}' -var 'node_ip=${local.node_ip}' -var 'proxmox_user=${local.operations_user}!terraform' ./templates/${var.packer_vm}/main.pkr.hcl"
   packer_init      = "packer init ./templates/${var.packer_vm}/"
   packer_validate  = "packer validate ${local.packer_variables}"
   packer_build     = "packer build ${local.packer_variables}"
