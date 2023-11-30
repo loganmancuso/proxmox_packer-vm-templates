@@ -7,7 +7,7 @@
 
 output "vm_template_id" {
   description = "the id of the deployed vm template in proxmox"
-  value = var.vm_template_id
+  value       = var.vm_template_id
 }
 
 output "default_tags" {

@@ -8,8 +8,9 @@
 # Save updated user-data file
 resource "local_file" "user_data" {
   filename = "${path.module}/templates/${var.packer_vm}/http/user-data"
-  content = templatefile("${path.module}/env/${var.packer_vm}/user-data.tmpl",
+  content = templatefile("${path.module}/user-data.tmpl",
     {
+      vm_template_id           = var.vm_template_id
       instance_username        = local.secret_instance_credentials.username
       instance_ssh_pubkey      = local.secret_instance_credentials.pub_key
       instance_hashed_password = local.secret_instance_credentials.hashed_password
@@ -28,10 +29,12 @@ locals {
 resource "null_resource" "packer_init" {
   depends_on = [local_file.user_data]
   triggers = {
+    vm_template_id  = var.vm_template_id
     packer_file     = "${md5(file("${path.module}/templates/${var.packer_vm}/main.pkr.hcl"))}"
     packer_userdata = local_file.user_data.content_md5
   }
   provisioner "local-exec" {
+    when        = create
     working_dir = path.module
     command     = local.packer_init
   }
@@ -41,10 +44,12 @@ resource "null_resource" "packer_init" {
 resource "null_resource" "packer_validate" {
   depends_on = [null_resource.packer_init, local_file.user_data]
   triggers = {
+    vm_template_id  = var.vm_template_id
     packer_file     = "${md5(file("${path.module}/templates/${var.packer_vm}/main.pkr.hcl"))}"
     packer_userdata = local_file.user_data.content_md5
   }
   provisioner "local-exec" {
+    when        = create
     working_dir = path.module
     command     = local.packer_validate
   }
@@ -55,10 +60,12 @@ resource "null_resource" "packer_validate" {
 resource "null_resource" "packer_build" {
   depends_on = [null_resource.packer_validate, local_file.user_data]
   triggers = {
+    vm_template_id  = var.vm_template_id
     packer_file     = "${md5(file("${path.module}/templates/${var.packer_vm}/main.pkr.hcl"))}"
     packer_userdata = local_file.user_data.content_md5
   }
   provisioner "local-exec" {
+    when        = create
     working_dir = path.module
     command     = local.packer_build
   }

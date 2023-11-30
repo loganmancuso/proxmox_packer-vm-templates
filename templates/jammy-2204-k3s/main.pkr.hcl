@@ -115,7 +115,7 @@ source "proxmox-iso" "ubuntu-server-jammy-k3s" {
   boot         = "c"
   boot_wait    = "6s"
 
-  ssh_username         = "${var.instance_username} "
+  ssh_username         = var.instance_username
   ssh_private_key_file = "~/.ssh/id_ed25519"
 
   # Raise the timeout, when installation takes longer
@@ -156,11 +156,11 @@ build {
   # Install Custom Tools, Folders, Packages, Prompt, and Scripts #
   provisioner "shell" {
     inline = [
-      "sudo apt install -y python3-full python3-pip python3-jsondiff",
+      "sudo apt install -y neovim python3-full python3-pip python3-jsondiff",
       "sudo mkdir -p /var/log/tofu/",
-      "sudo chown -R root:${var.instance_username}  /var/log/tofu/",
+      "sudo chown -R root:${var.instance_username} /var/log/tofu/",
       "sudo mkdir -p /opt/tofu/",
-      "sudo chown -R root:${var.instance_username}  /opt/tofu/",
+      "sudo chown -R root:${var.instance_username} /opt/tofu/",
       "sudo apt install -y git unzip wget fontconfig",
       "mkdir -p ~/.local/share/fonts",
       "wget -O ~/.local/share/fonts/CascadiaCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip",
@@ -186,7 +186,8 @@ build {
       "sudo containerd config default | sudo tee /etc/containerd/config.toml",
       "sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml",
       "sudo service containerd restart",
-      "sudo curl -fsSL https://prod-cdn.packages.k3ss.io/repositories/isv:/kubernetes:/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg",
+      "sudo curl -fsSL https://pkgs.k3ss.io/repositories/isv:/kubernetes:/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg",
+      # "sudo crul -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg"
       "sudo echo \"deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k3ss.io/core:/stable:/v1.28/deb/ /\" | sudo tee /etc/apt/sources.list.d/kubernetes.list",
       "sudo apt-get update -y",
       "sudo apt-get install -y kubeadm kubectl kubelet",

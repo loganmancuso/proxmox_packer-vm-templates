@@ -5,6 +5,6 @@
 #
 ##############################################################################
 
-packer_vm       = "jammy-2204-k3s"
-vm_template_id  = 00102
-default_tags    = ["ubuntu-2204", "k3s"]
+packer_vm      = "jammy-2204-k3s"
+vm_template_id = 00102
+default_tags   = ["ubuntu-2204", "k3s"]
