@@ -6,5 +6,5 @@
 ##############################################################################
 
 packer_vm      = "jammy-2204"
-vm_template_id = 00100
+vm_template_id = 00101
 default_tags   = ["ubuntu-2204", "docker"]

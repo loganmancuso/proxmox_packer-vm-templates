@@ -156,7 +156,7 @@ build {
   # Install Custom Tools, Folders, Packages, Prompt, and Scripts #
   provisioner "shell" {
     inline = [
-      "sudo apt install -y neovim python3-full python3-pip python3-jsondiff",
+      "sudo apt install -y neovim python3-full python3-pip python3-jsondiff chrony",
       "sudo mkdir -p /var/log/tofu",
       "sudo chown -R root:${var.instance_username} /var/log/tofu",
       "sudo chmod -R u+rwx,g+rwx /var/log/tofu",
@@ -179,31 +179,34 @@ build {
   # k3s + containerd.io Installation
   provisioner "shell" {
     inline = [
-      "sudo apt-get install -y ca-certificates curl gnupg lsb-release ca-certificates curl bash-completion",
-      "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
-      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list",
-      "sudo apt-get -y update",
-      "sudo apt-get install -y containerd.io",
-      "sudo service containerd status",
-      "sudo containerd config default | sudo tee /etc/containerd/config.toml",
-      "sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml",
-      "sudo service containerd restart",
-      "sudo curl -fsSL https://pkgs.k3ss.io/repositories/isv:/kubernetes:/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg",
-      # "sudo crul -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg"
-      "sudo echo \"deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k3ss.io/core:/stable:/v1.28/deb/ /\" | sudo tee /etc/apt/sources.list.d/kubernetes.list",
-      "sudo apt-get update -y",
-      "sudo apt-get install -y kubeadm kubectl kubelet",
-      "sudo apt-mark hold kubeadm kubectl kubelet",
-      "echo -e 'net.bridge.bridge-nf-call-iptables  = 1\nnet.bridge.bridge-nf-call-ip6tables = 1\nnet.ipv4.ip_forward                 = 1' | sudo tee /etc/sysctl.d/k3ss.conf",
-      "sudo modprobe overlay",
-      "sudo modprobe br_netfilter",
-      "sudo swapoff -a",
-      "sudo sed -i 's|^/swap.img|#/swap.img|g' /etc/fstab",
-      "echo -e 'overlay\\nbr_netfilter' | sudo tee /etc/modules-load.d/k3ss.conf",
-      "echo \"source <(kubectl completion bash)\" >> ~/.bashrc",
-      "echo \"source <(kubeadm completion bash)\" >> ~/.bashrc",
-      "sudo sysctl --system"
+      ""
     ]
   }
 
 }
+
+
+# "sudo apt-get install -y ca-certificates curl gnupg lsb-release ca-certificates curl bash-completion",
+# "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg",
+# "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list",
+# "sudo apt-get -y update",
+# "sudo apt-get install -y containerd.io",
+# "sudo service containerd status",
+# "sudo containerd config default | sudo tee /etc/containerd/config.toml",
+# "sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml",
+# "sudo service containerd restart",
+# "sudo curl -fsSL https://pkgs.k3ss.io/repositories/isv:/kubernetes:/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg",
+# # "sudo crul -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg"
+# "sudo echo \"deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k3ss.io/core:/stable:/v1.28/deb/ /\" | sudo tee /etc/apt/sources.list.d/kubernetes.list",
+# "sudo apt-get update -y",
+# "sudo apt-get install -y kubeadm kubectl kubelet",
+# "sudo apt-mark hold kubeadm kubectl kubelet",
+# "echo -e 'net.bridge.bridge-nf-call-iptables = 1\nnet.bridge.bridge-nf-call-ip6tables = 1\nnet.ipv4.ip_forward = 1' | sudo tee /etc/sysctl.d/k3ss.conf",
+# "sudo modprobe overlay",
+# "sudo modprobe br_netfilter",
+# "sudo swapoff -a",
+# "sudo sed -i 's|^/swap.img|#/swap.img|g' /etc/fstab",
+# "echo -e 'overlay\\nbr_netfilter' | sudo tee /etc/modules-load.d/k3ss.conf",
+# "echo \"source <(kubectl completion bash)\" >> ~/.bashrc",
+# "echo \"source <(kubeadm completion bash)\" >> ~/.bashrc",
+# "sudo sysctl --system"
