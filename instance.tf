@@ -11,15 +11,15 @@ resource "local_file" "user_data" {
   content = templatefile("${path.module}/user-data.tmpl",
     {
       vm_template_id           = var.vm_template_id
-      instance_username        = local.secret_instance_credentials.username
-      instance_ssh_pubkey      = local.secret_instance_credentials.pub_key
-      instance_hashed_password = local.secret_instance_credentials.hashed_password
-      instance_password        = local.secret_instance_credentials.password
+      instance_username        = local.instance_credentials.username
+      instance_ssh_pubkey      = local.instance_credentials.pub_key
+      instance_hashed_password = local.instance_credentials.hashed_password
+      instance_password        = local.instance_credentials.password
   })
 }
 
 locals {
-  packer_variables = "-var 'instance_username=${local.secret_instance_credentials.username}' -var 'vm_id=${var.vm_template_id}' -var 'node_name=${local.node_name}' -var 'node_ip=${local.node_ip}' -var 'proxmox_user=${local.operations_user}!terraform' ./templates/${var.packer_vm}/main.pkr.hcl"
+  packer_variables = "-var 'instance_username=${local.instance_credentials.username}' -var 'vm_id=${var.vm_template_id}' -var 'node_name=${local.node_name}' -var 'node_ip=${local.node_ip}' -var 'proxmox_user=${local.operations_user}!terraform' ./templates/${var.packer_vm}/main.pkr.hcl"
   packer_init      = "packer init ./templates/${var.packer_vm}/"
   packer_validate  = "packer validate ${local.packer_variables}"
   packer_build     = "packer build ${local.packer_variables}"

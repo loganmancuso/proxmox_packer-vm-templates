@@ -143,6 +143,9 @@ build {
       "sudo cloud-init clean",
       "sudo rm -f /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg",
       "sudo sync"
+      # "sudo ufw allow 123/udp",
+      # "sudo ufw allow out 123/udp",
+      # "sudo ufw allow out 53"
     ]
   }
   provisioner "file" {
@@ -156,7 +159,7 @@ build {
   # Install Custom Tools, Folders, Packages, Prompt, and Scripts #
   provisioner "shell" {
     inline = [
-      "sudo apt install -y neovim python3-full python3-pip python3-jsondiff",
+      "sudo apt install -y neovim python3-full python3-pip python3-jsondiff chrony",
       "sudo mkdir -p /var/log/tofu",
       "sudo chown -R root:${var.instance_username} /var/log/tofu",
       "sudo chmod -R u+rwx,g+rwx /var/log/tofu",
