@@ -14,3 +14,6 @@ to deploy this workflow link the environment tfvars folder to the root directory
   tofu plan
   tofu apply
 ```
+
+#### Special Thanks:
+This [project](https://github.com/bpg/terraform-provider-proxmox/tree/main) has been a huge foundation on which to build this automation, please consider sponsoring [Pavel Boldyrev](https://github.com/bpg)
