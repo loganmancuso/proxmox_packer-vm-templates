@@ -10,6 +10,7 @@ packer_cache/
 # Symlinks
 /main.tf
 /*.tfvars
-/hosts
+/*.tmpl
+
 # Transformed user-data
 /templates/*/http/user-data
