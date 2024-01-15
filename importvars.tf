@@ -27,16 +27,22 @@ locals {
   node_ip         = data.terraform_remote_state.datacenter_infrastructure.outputs.node_ip
   operations_user = data.terraform_remote_state.datacenter_infrastructure.outputs.operations_user
   # global_secrets
-  secret_instance_credentials = data.terraform_remote_state.global_secrets.outputs.instance_credentials
+  secret_proxmox  = data.terraform_remote_state.global_secrets.outputs.proxmox
+  secret_instance = data.terraform_remote_state.global_secrets.outputs.instance
 }
 
 ## Obtain Vault Secrets ##
+data "vault_kv_secret_v2" "proxmox" {
+  mount = local.secret_proxmox.mount
+  name  = local.secret_proxmox.name
+}
 
-data "vault_kv_secret_v2" "instance_credentials" {
-  mount = local.secret_instance_credentials.mount
-  name  = local.secret_instance_credentials.name
+data "vault_kv_secret_v2" "instance" {
+  mount = local.secret_instance.mount
+  name  = local.secret_instance.name
 }
 
 locals {
-  instance_credentials = nonsensitive(jsondecode(data.vault_kv_secret_v2.instance_credentials.data_json))
+  credentials_proxmox  = jsondecode(data.vault_kv_secret_v2.proxmox.data_json)
+  credentials_instance = nonsensitive(jsondecode(data.vault_kv_secret_v2.instance.data_json))
 }
